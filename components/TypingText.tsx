@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Props {
   text: string
@@ -12,6 +12,9 @@ export default function TypingText({ text, speed = 25, onDone }: Props) {
   const [displayed, setDisplayed] = useState('')
   const [done, setDone] = useState(false)
 
+  const onDoneRef = useRef(onDone)
+  useEffect(() => { onDoneRef.current = onDone })
+
   useEffect(() => {
     setDisplayed('')
     setDone(false)
@@ -22,11 +25,11 @@ export default function TypingText({ text, speed = 25, onDone }: Props) {
       if (i >= text.length) {
         clearInterval(interval)
         setDone(true)
-        onDone?.()
+        onDoneRef.current?.()
       }
     }, speed)
     return () => clearInterval(interval)
-  }, [text, speed, onDone])
+  }, [text, speed])
 
   return (
     <>

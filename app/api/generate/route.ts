@@ -26,12 +26,16 @@ export async function POST(request: Request) {
     })
 
     const data = await res.json()
-    if (!res.ok) return Response.json({ error: data }, { status: 500 })
+    if (!res.ok) {
+      console.error('[generate] Anthropic error:', res.status, JSON.stringify(data))
+      return Response.json({ error: data }, { status: 500 })
+    }
 
     const text = data.content?.[0]?.text || 'Une erreur est survenue.'
     return Response.json({ text })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[generate] fetch failed:', message)
     return Response.json({ error: message }, { status: 500 })
   }
 }
