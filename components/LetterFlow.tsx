@@ -155,6 +155,8 @@ Lois d'écriture — à respecter absolument :
 6. Entre 220 et 300 mots — pas un mot de plus, pas un mot de moins
 7. Jamais pompeux, jamais thérapeutique — toujours humain, imparfait, vrai
 
+LANGUE : Réponds UNIQUEMENT en français, quelles que soient les réponses de l'utilisateur.
+
 Écris uniquement la lettre. Pas de titre, pas de commentaire, pas de guillemets autour.`
   return callApi(prompt)
 }
@@ -222,6 +224,7 @@ export default function LetterFlow() {
   const [savedLetterId, setSavedLetterId] = useState<string | null>(null)
   const [aiEditsUsed, setAiEditsUsed]     = useState(0)
   const [linkCopied, setLinkCopied]       = useState(false)
+  const [shortAnswerError, setShortAnswerError] = useState(false)
   const [out, setOut]                     = useState(false)
 
   const rel        = RELATIONSHIPS.find(r => r.id === relationship)
@@ -266,6 +269,7 @@ export default function LetterFlow() {
         go(() => setStep('moment'))
         break
       case 'questions':
+        setShortAnswerError(false)
         if (qIndex > 0) {
           go(() => { setQIndex(qIndex - 1); setAnswer(answers[QUESTIONS[qIndex - 1].id] || ''); setQReady(false) })
         } else {
@@ -296,13 +300,18 @@ export default function LetterFlow() {
 
   async function next() {
     if (!answer.trim()) return
+    if (answer.trim().split(/\s+/).length < 3) {
+      setShortAnswerError(true)
+      return
+    }
+    setShortAnswerError(false)
     const newA = { ...answers, [q.id]: answer }
     setAnswers(newA)
     setAnswer('')
     setQReady(false)
 
     if (qIndex < QUESTIONS.length - 1) {
-      go(() => setQIndex(qIndex + 1))
+      go(() => { setQIndex(qIndex + 1); setQReady(false) })
     } else {
       go(() => setStep('generating'))
       try {
@@ -446,9 +455,14 @@ export default function LetterFlow() {
             {qReady && (
               <div style={{ animation: 'up .4s ease both' }}>
                 <textarea className="textarea" rows={4} placeholder={q.placeholder}
-                  value={answer} onChange={e => setAnswer(e.target.value)}
+                  value={answer} onChange={e => { setAnswer(e.target.value); setShortAnswerError(false) }}
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) next() }}
                   autoFocus />
+                {shortAnswerError && (
+                  <p style={{ fontSize: '.75rem', color: 'var(--soft)', marginTop: '.8rem', fontWeight: 300, lineHeight: 1.5 }}>
+                    Prends le temps de répondre — plus tu partages, plus la lettre sera juste.
+                  </p>
+                )}
                 <div className="qfooter">
                   <BackButton onClick={goBack} />
                   <button className="btn btn-dark" onClick={next} disabled={!answer.trim()}>
