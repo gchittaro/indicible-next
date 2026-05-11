@@ -36,9 +36,11 @@ export async function register(prevState: AuthState, formData: FormData): Promis
 
   const supabase = createClient()
 
+  const origin = await getOrigin()
   const { data, error } = await supabase.auth.signUp({
     email: formData.get('email') as string,
     password,
+    options: { emailRedirectTo: `${origin}/auth/callback` },
   })
 
   if (error) return { error: frenchError(error.message) }
