@@ -58,7 +58,7 @@ async function getOrigin(): Promise<string> {
   return `${proto}://${host}`
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(_formData: FormData): Promise<void> {
   const supabase = createClient()
   const origin   = await getOrigin()
 
@@ -67,11 +67,11 @@ export async function signInWithGoogle() {
     options: { redirectTo: `${origin}/auth/callback` },
   })
 
-  if (error) return { error: frenchError(error.message) }
-  if (data.url) redirect(data.url)
+  if (error || !data.url) return
+  redirect(data.url)
 }
 
-export async function signInWithFacebook() {
+export async function signInWithFacebook(_formData: FormData): Promise<void> {
   const supabase = createClient()
   const origin   = await getOrigin()
 
@@ -80,6 +80,6 @@ export async function signInWithFacebook() {
     options: { redirectTo: `${origin}/auth/callback` },
   })
 
-  if (error) return { error: frenchError(error.message) }
-  if (data.url) redirect(data.url)
+  if (error || !data.url) return
+  redirect(data.url)
 }
