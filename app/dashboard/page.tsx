@@ -20,8 +20,8 @@ const REACTION_EMOJI: Record<string, string> = {
 }
 const REACTION_LABEL: Record<string, string> = {
   touche: 'Touché·e',
-  parler: 'Je veux qu'on se parle',
-  pardon: 'J'accepte / je pardonne',
+  parler: `Je veux qu'on se parle`,
+  pardon: `J'accepte / je pardonne`,
   silence: 'Pas de suite',
 }
 const STATUS_LABEL: Record<string, string> = {
