@@ -24,7 +24,7 @@ type LetterRow = {
   style: string
   status: string
   created_at: string
-  reactions: { id: string; type: string; created_at: string }[]
+  reactions: { id: string; type: string; message: string | null; created_at: string }[]
 }
 
 export async function saveLetter(data: LetterInsert) {
@@ -65,7 +65,7 @@ export async function getLetters(userId: string): Promise<LetterRow[]> {
 
   const { data, error } = await service
     .from('letters')
-    .select('id, token, recipient_name, recipient_type, tone, style, status, created_at, reactions(id, type, created_at)')
+    .select('id, token, recipient_name, recipient_type, tone, style, status, created_at, reactions(id, type, message, created_at)')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
