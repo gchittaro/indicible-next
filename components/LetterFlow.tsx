@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import TypingText from './TypingText'
-import { saveLetter, updateAiEditsCount } from '@/app/actions/letters'
+import { saveLetter, updateAiEditsCount, markLetterShared } from '@/app/actions/letters'
 
 const FREE_AI_EDITS = 2
 
@@ -573,7 +573,12 @@ export default function LetterFlow() {
                 {copied ? 'Copié ✓' : 'Copier le texte'}
               </button>
               {savedToken && (
-                <button className="btn btn-border" onClick={() => { navigator.clipboard.writeText(window.location.origin + '/lettre/' + savedToken); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000) }}>
+                <button className="btn btn-border" onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + '/lettre/' + savedToken)
+                  setLinkCopied(true)
+                  setTimeout(() => setLinkCopied(false), 2000)
+                  if (savedLetterId) markLetterShared(savedLetterId).catch(() => {})
+                }}>
                   {linkCopied ? 'Lien copié ✓' : 'Partager le lien'}
                 </button>
               )}

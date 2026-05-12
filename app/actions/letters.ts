@@ -112,11 +112,31 @@ export async function submitReaction(letterId: string, type: string, message: st
     .insert({ letter_id: letterId, type, message })
   if (error) throw error
 
-  await service
-    .from('notifications')
-    .update({ read_at: new Date().toISOString() })
-    .eq('letter_id', letterId)
-    .is('read_at', null)
+  await Promise.all([
+    service.from('letters')
+      .update({ status: 'répondue' })
+      .eq('id', letterId),
+    service.from('notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('letter_id', letterId)
+      .is('read_at', null),
+  ])
+}
+
+export async function markLetterShared(letterId: string) {
+  const service = createServiceClient()
+  await service.from('letters')
+    .update({ status: 'partagée' })
+    .eq('id', letterId)
+    .eq('status', 'brouillon')
+}
+
+export async function markLetterRead(letterId: string) {
+  const service = createServiceClient()
+  await service.from('letters')
+    .update({ status: 'lue' })
+    .eq('id', letterId)
+    .in('status', ['brouillon', 'partagée'])
 }
 
 export async function updateAiEditsCount(letterId: string, count: number) {

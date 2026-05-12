@@ -25,12 +25,18 @@ const REACTION_LABEL: Record<string, string> = {
   silence: 'Pas de suite',
 }
 const STATUS_LABEL: Record<string, string> = {
-  draft: 'Brouillon', sent: 'Envoyée', read: 'Lue',
+  brouillon: 'Brouillon',
+  partagée:  'Partagée',
+  lue:       'Lue',
+  répondue:  'Répondue',
+  draft:     'Brouillon',
 }
 const STATUS_COLOR: Record<string, string> = {
-  draft: 'var(--mute)',
-  sent:  '#8B6B3D',
-  read:  '#4A7C59',
+  brouillon: 'var(--mute)',
+  partagée:  '#8B6B3D',
+  lue:       '#4A7C59',
+  répondue:  '#3B6EA5',
+  draft:     'var(--mute)',
 }
 
 function getDisplay(type: string, name: string | null) {

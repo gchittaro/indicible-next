@@ -1,6 +1,7 @@
-import { getLetterByToken } from '@/app/actions/letters'
+import { getLetterByToken, markLetterRead } from '@/app/actions/letters'
 import { notFound } from 'next/navigation'
 import ReactionForm from '@/components/ReactionForm'
+import CopyLinkButton from '@/components/CopyLinkButton'
 
 const TONE_LABELS: Record<string, string> = {
   doux: 'Doux & apaisé', courageux: 'Courageux & direct', nostalgique: 'Nostalgique',
@@ -22,8 +23,14 @@ export default async function LettrePage({ params }: { params: { token: string }
   const letter = await getLetterByToken(params.token)
   if (!letter) notFound()
 
-  const display = getDisplay(letter.recipient_type, letter.recipient_name)
+  // Mark as read when recipient opens the page (won't overwrite 'répondue')
+  if (letter.status !== 'répondue') {
+    markLetterRead(letter.id).catch(() => {})
+  }
+
+  const display    = getDisplay(letter.recipient_type, letter.recipient_name)
   const paragraphs = letter.content.split('\n\n').filter((p: string) => p.trim())
+  const url        = `/lettre/${params.token}`
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -51,6 +58,9 @@ export default async function LettrePage({ params }: { params: { token: string }
               ✦ Écrit avec Indicible
             </p>
           )}
+        </div>
+        <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <CopyLinkButton url={url} />
         </div>
         <ReactionForm letterId={letter.id} />
       </div>
