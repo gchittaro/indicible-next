@@ -5,7 +5,8 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 
-export type AuthState = { error: string } | null
+export type AuthState  = { error: string } | null
+export type ResetState = { error?: string; sent?: boolean } | null
 
 function frenchError(message: string): string {
   if (message.includes('Invalid login credentials')) return 'Email ou mot de passe incorrect.'
@@ -69,6 +70,28 @@ export async function register(prevState: AuthState, formData: FormData): Promis
   }
 
   redirect(data.session ? '/' : '/check-email')
+}
+
+export async function sendPasswordReset(prevState: ResetState, formData: FormData): Promise<ResetState> {
+  const email    = formData.get('email') as string
+  const supabase = createClient()
+  const origin   = await getOrigin()
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?next=/auth/reset`,
+  })
+  if (error) return { error: frenchError(error.message) }
+  return { sent: true }
+}
+
+export async function updatePassword(prevState: AuthState, formData: FormData): Promise<AuthState> {
+  const password = formData.get('password') as string
+  const confirm  = formData.get('confirm') as string
+  if (password !== confirm) return { error: 'Les mots de passe ne correspondent pas.' }
+  if (password.length < 6)  return { error: 'Le mot de passe doit faire au moins 6 caractères.' }
+  const supabase = createClient()
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) return { error: frenchError(error.message) }
+  redirect('/')
 }
 
 export async function logout() {
