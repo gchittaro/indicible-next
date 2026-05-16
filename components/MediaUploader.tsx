@@ -103,26 +103,36 @@ export default function MediaUploader({
         <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
       </div>
 
-      {/* Add buttons + save status */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+      {/* Add buttons */}
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
-        <button className="media-add-btn" onClick={() => { fileRef.current?.click(); setError(null) }} disabled={uploading}>
-          {uploading ? <>◻ Chargement…</> : <>◻ Photo</>}
+        <button
+          className="media-add-btn"
+          onClick={() => { fileRef.current?.click(); setError(null) }}
+          disabled={uploading}
+        >
+          <span className="media-btn-icon">📷</span>
+          <span className="media-btn-label">{uploading ? 'Chargement…' : 'Ajouter une photo'}</span>
+          <span className="media-btn-sub">Ajoute une photo souvenir</span>
         </button>
         <button
           className="media-add-btn"
           onClick={() => { setShowVideo(v => !v); setError(null) }}
-          style={showVideo ? { borderColor: 'var(--ink)', color: 'var(--ink)' } : {}}
+          style={showVideo ? { borderColor: 'var(--ink)', background: 'var(--paper)' } : {}}
         >
-          ▷ Vidéo
+          <span className="media-btn-icon">🎬</span>
+          <span className="media-btn-label">Ajouter une vidéo</span>
+          <span className="media-btn-sub">YouTube ou Vimeo</span>
         </button>
-        {saveStatus === 'saving' && (
-          <span style={{ fontSize: '.62rem', color: 'var(--mute)', letterSpacing: '.06em' }}>Enregistrement…</span>
-        )}
-        {saveStatus === 'saved' && (
-          <span style={{ fontSize: '.62rem', color: '#4A7C59', letterSpacing: '.06em' }}>Enregistré ✓</span>
-        )}
       </div>
+
+      {/* Save status */}
+      {(saveStatus === 'saving' || saveStatus === 'saved') && (
+        <p style={{ fontSize: '.62rem', letterSpacing: '.06em', marginBottom: '.6rem',
+          color: saveStatus === 'saved' ? '#4A7C59' : 'var(--mute)' }}>
+          {saveStatus === 'saving' ? 'Enregistrement…' : 'Enregistré ✓'}
+        </p>
+      )}
 
       {/* Video input */}
       {showVideo && (

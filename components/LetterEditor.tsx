@@ -96,6 +96,7 @@ export default function LetterEditor({
   const [regenIndex, setRegenIndex]             = useState<number | null>(null)
   const [copied, setCopied]                     = useState(false)
   const [linkCopied, setLinkCopied]             = useState(false)
+  const [showMediaGate, setShowMediaGate]       = useState(false)
 
   function updateContent(text: string) {
     setCurrentLetter(text)
@@ -215,6 +216,37 @@ export default function LetterEditor({
         </div>
       )}
 
+      {/* Media — between adjust and actions */}
+      {isPremium ? (
+        <MediaUploader
+          letterId={letter.id}
+          initialItems={letter.media_items ?? []}
+        />
+      ) : (
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: showMediaGate ? '1rem' : 0 }}>
+            <button className="media-locked-btn" onClick={() => setShowMediaGate(g => !g)}>
+              <span className="media-btn-icon">📷</span>
+              <span className="media-btn-label">Ajouter une photo</span>
+              <span className="media-btn-lock">🔒 Débloquer pour ajouter</span>
+            </button>
+            <button className="media-locked-btn" onClick={() => setShowMediaGate(g => !g)}>
+              <span className="media-btn-icon">🎬</span>
+              <span className="media-btn-label">Ajouter une vidéo</span>
+              <span className="media-btn-lock">🔒 Débloquer pour ajouter</span>
+            </button>
+          </div>
+          {showMediaGate && (
+            <div className="premium-gate" style={{ animation: 'up .2s ease both' }}>
+              <p style={{ fontSize: '.82rem', fontWeight: 300, lineHeight: 1.6, marginBottom: '1rem' }}>
+                Débloquer 5 modifications — ajoute des photos et vidéos à ta lettre pour 4,99 €
+              </p>
+              <PremiumButton letterId={letter.id} token={letter.token} />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Actions */}
       <div className="lactions">
         <button
@@ -234,14 +266,6 @@ export default function LetterEditor({
           {linkCopied ? 'Lien copié ✓' : 'Partager le lien'}
         </button>
       </div>
-
-      {/* Media — photos & videos attached to the letter */}
-      {isPremium && (
-        <MediaUploader
-          letterId={letter.id}
-          initialItems={letter.media_items ?? []}
-        />
-      )}
 
     </main>
   )
