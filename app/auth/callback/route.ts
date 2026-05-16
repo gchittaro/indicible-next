@@ -4,7 +4,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  const type = searchParams.get('type')
+  const next = type === 'recovery' ? '/auth/reset' : (searchParams.get('next') ?? '/')
+
+  console.log('[auth/callback] code:', !!code, 'type:', type, 'next:', next)
 
   if (code) {
     const response = NextResponse.redirect(`${origin}${next}`)
@@ -25,6 +28,7 @@ export async function GET(request: NextRequest) {
     )
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) console.error('[auth/callback] exchangeCodeForSession error:', error)
     if (!error) return response
   }
 
