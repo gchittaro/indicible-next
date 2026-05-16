@@ -29,7 +29,10 @@ export async function POST(request: Request) {
 
   if (error) {
     console.error('[upload] storage error:', error)
-    return Response.json({ error: error.message }, { status: 500 })
+    const msg = error.message?.toLowerCase().includes('bucket')
+      ? "Le bucket Storage 'letters' n'existe pas — crée-le dans Supabase > Storage > New bucket (public, nom : letters)"
+      : error.message
+    return Response.json({ error: msg }, { status: 500 })
   }
 
   const { data: { publicUrl } } = service.storage
