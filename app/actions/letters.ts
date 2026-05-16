@@ -117,13 +117,14 @@ export async function getLetterByToken(token: string) {
 export async function updateLetterMedia(letterId: string, items: MediaItem[]) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+  if (!user) throw new Error('Not authenticated')
   const service = createServiceClient()
-  await service
+  const { error } = await service
     .from('letters')
     .update({ media_items: items })
     .eq('id', letterId)
     .eq('user_id', user.id)
+  if (error) throw new Error(error.message)
 }
 
 export async function submitReaction(letterId: string, type: string, message: string | null) {

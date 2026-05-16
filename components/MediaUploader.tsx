@@ -18,16 +18,27 @@ export default function MediaUploader({
   letterId: string
   initialItems: MediaItem[]
 }) {
-  const [items, setItems]               = useState<MediaItem[]>(initialItems)
-  const [uploading, setUploading]       = useState(false)
-  const [videoInput, setVideoInput]     = useState('')
-  const [showVideo, setShowVideo]       = useState(false)
-  const [error, setError]               = useState<string | null>(null)
-  const fileRef                         = useRef<HTMLInputElement>(null)
+  const [items, setItems]           = useState<MediaItem[]>(initialItems)
+  const [uploading, setUploading]   = useState(false)
+  const [videoInput, setVideoInput] = useState('')
+  const [showVideo, setShowVideo]   = useState(false)
+  const [error, setError]           = useState<string | null>(null)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const fileRef                     = useRef<HTMLInputElement>(null)
+  const captionTimer                = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   async function persist(next: MediaItem[]) {
     setItems(next)
-    updateLetterMedia(letterId, next).catch(() => {})
+    setSaveStatus('saving')
+    try {
+      await updateLetterMedia(letterId, next)
+      setSaveStatus('saved')
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    } catch (err) {
+      console.error('[MediaUploader] save error:', err)
+      setSaveStatus('error')
+      setError('Erreur de sauvegarde — vérifie que la colonne media_items existe dans Supabase')
+    }
   }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -53,25 +64,28 @@ export default function MediaUploader({
     e.target.value = ''
   }
 
-  function addVideo() {
+  async function addVideo() {
     const embed = parseVideoEmbed(videoInput.trim())
     if (!embed) { setError('Lien YouTube ou Vimeo invalide'); return }
-    persist([...items, { id: crypto.randomUUID(), type: 'video', url: embed, caption: '' }])
+    await persist([...items, { id: crypto.randomUUID(), type: 'video', url: embed, caption: '' }])
     setVideoInput('')
     setShowVideo(false)
     setError(null)
   }
 
-  function remove(id: string) {
-    persist(items.filter(i => i.id !== id))
+  async function remove(id: string) {
+    await persist(items.filter(i => i.id !== id))
   }
 
-  let captionTimer: ReturnType<typeof setTimeout>
   function updateCaption(id: string, caption: string) {
     const next = items.map(i => i.id === id ? { ...i, caption } : i)
     setItems(next)
-    clearTimeout(captionTimer)
-    captionTimer = setTimeout(() => updateLetterMedia(letterId, next).catch(() => {}), 700)
+    if (captionTimer.current) clearTimeout(captionTimer.current)
+    captionTimer.current = setTimeout(async () => {
+      try {
+        await updateLetterMedia(letterId, next)
+      } catch { /* silent for captions */ }
+    }, 700)
   }
 
   const photos = items.filter(i => i.type === 'image')
@@ -89,15 +103,11 @@ export default function MediaUploader({
         <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
       </div>
 
-      {/* Add buttons */}
-      <div style={{ display: 'flex', gap: '.8rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+      {/* Add buttons + save status */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
         <button className="media-add-btn" onClick={() => { fileRef.current?.click(); setError(null) }} disabled={uploading}>
-          {uploading ? (
-            <><span style={{ display: 'inline-block', animation: 'pulse 1s ease infinite' }}>◻</span> Chargement…</>
-          ) : (
-            <>◻ Photo</>
-          )}
+          {uploading ? <>◻ Chargement…</> : <>◻ Photo</>}
         </button>
         <button
           className="media-add-btn"
@@ -106,6 +116,12 @@ export default function MediaUploader({
         >
           ▷ Vidéo
         </button>
+        {saveStatus === 'saving' && (
+          <span style={{ fontSize: '.62rem', color: 'var(--mute)', letterSpacing: '.06em' }}>Enregistrement…</span>
+        )}
+        {saveStatus === 'saved' && (
+          <span style={{ fontSize: '.62rem', color: '#4A7C59', letterSpacing: '.06em' }}>Enregistré ✓</span>
+        )}
       </div>
 
       {/* Video input */}
@@ -128,7 +144,7 @@ export default function MediaUploader({
       )}
 
       {error && (
-        <p style={{ fontSize: '.72rem', color: '#8B3A3A', marginBottom: '.8rem' }}>{error}</p>
+        <p style={{ fontSize: '.72rem', color: '#8B3A3A', marginBottom: '.8rem', lineHeight: 1.5 }}>{error}</p>
       )}
 
       {/* Photos */}
