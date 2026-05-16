@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         letter_id: letterId,
         user_id:   user?.id ?? '',
       },
-      success_url: `${origin}/lettre/${token}?premium=success`,
+      success_url: `${origin}/dashboard/letters/${letterId}?premium=success`,
       cancel_url:  `${origin}/lettre/${token}`,
     })
 
