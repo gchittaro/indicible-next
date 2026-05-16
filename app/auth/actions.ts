@@ -76,9 +76,10 @@ export async function sendPasswordReset(prevState: ResetState, formData: FormDat
   const email    = formData.get('email') as string
   const supabase = createClient()
   const origin   = await getOrigin()
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?next=/auth/reset`,
-  })
+  const redirectTo = `${origin}/auth/callback?next=/auth/reset`
+  console.log('[sendPasswordReset] email:', email, 'redirectTo:', redirectTo)
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+  console.log('[sendPasswordReset] data:', JSON.stringify(data), 'error:', JSON.stringify(error))
   if (error) return { error: frenchError(error.message) }
   return { sent: true }
 }
