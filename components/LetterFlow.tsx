@@ -318,19 +318,22 @@ export default function LetterFlow() {
       try {
         const text = await generateLetter(relationship!, procheName, settings, newA)
         updateLetter(text)
-        saveLetter({
-          recipient_name: relationship === 'proche' ? procheName : relationship === 'amoureux' ? (amoureux_gender === 'il' ? 'amoureux' : 'amoureuse') : null,
-          recipient_type: relationship!,
-          tone: settings.tone!,
-          style: settings.style!,
-          moment: settings.moment!,
-          intention: settings.intention!,
-          answers: newA,
-          content: text,
-        }).then(({ id, token }) => {
-          setSavedLetterId(id)
-          setSavedToken(token)
-        }).catch(err => console.error('[saveLetter]', err))
+        try {
+          const saved = await saveLetter({
+            recipient_name: relationship === 'proche' ? procheName : relationship === 'amoureux' ? (amoureux_gender === 'il' ? 'amoureux' : 'amoureuse') : null,
+            recipient_type: relationship!,
+            tone: settings.tone!,
+            style: settings.style!,
+            moment: settings.moment!,
+            intention: settings.intention!,
+            answers: newA,
+            content: text,
+          })
+          setSavedLetterId(saved.id)
+          setSavedToken(saved.token)
+        } catch (err) {
+          console.error('[saveLetter]', err)
+        }
         go(() => { setStep('letter'); setTimeout(() => setLetterVisible(true), 200) })
       } catch {
         setLetter('Une erreur est survenue. Vérifie ta connexion et réessaie.')
