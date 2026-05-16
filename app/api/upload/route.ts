@@ -14,8 +14,8 @@ export async function POST(request: Request) {
 
   if (!file || !letterId)
     return Response.json({ error: 'Missing file or letterId' }, { status: 400 })
-  if (file.size > 8 * 1024 * 1024)
-    return Response.json({ error: 'Fichier trop lourd (8 Mo max)' }, { status: 400 })
+  if (file.size > 5 * 1024 * 1024)
+    return Response.json({ error: 'Fichier trop lourd (5 Mo max)' }, { status: 400 })
   if (!file.type.startsWith('image/'))
     return Response.json({ error: 'Images uniquement (jpg, png, webp…)' }, { status: 400 })
 

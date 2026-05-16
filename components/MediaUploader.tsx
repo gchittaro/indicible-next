@@ -41,9 +41,16 @@ export default function MediaUploader({
     }
   }
 
+  const MAX_PHOTOS = 5
+
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (photos.length >= MAX_PHOTOS) {
+      setError(`Maximum ${MAX_PHOTOS} photos par lettre`)
+      e.target.value = ''
+      return
+    }
     setUploading(true)
     setError(null)
     const fd = new FormData()
@@ -109,11 +116,13 @@ export default function MediaUploader({
         <button
           className="media-add-btn"
           onClick={() => { fileRef.current?.click(); setError(null) }}
-          disabled={uploading}
+          disabled={uploading || photos.length >= MAX_PHOTOS}
         >
           <span className="media-btn-icon">📷</span>
           <span className="media-btn-label">{uploading ? 'Chargement…' : 'Ajouter une photo'}</span>
-          <span className="media-btn-sub">Ajoute une photo souvenir</span>
+          <span className="media-btn-sub">
+            {photos.length >= MAX_PHOTOS ? `${MAX_PHOTOS}/${MAX_PHOTOS} — limite atteinte` : `Ajoute une photo souvenir`}
+          </span>
         </button>
         <button
           className="media-add-btn"
