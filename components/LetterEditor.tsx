@@ -171,48 +171,50 @@ export default function LetterEditor({
 
       {/* Adjust area */}
       {editsBlocked ? (
-        <div className="premium-gate" style={{ marginBottom: '2rem' }}>
-          <p style={{ fontSize: '.82rem', fontWeight: 300, lineHeight: 1.6, marginBottom: isPremium ? 0 : '1rem' }}>
-            {isPremium
-              ? `Tu as utilisé tes ${maxEdits} modifications.`
-              : `Tu as utilisé tes ${FREE_AI_EDITS} modifications gratuites — débloquer 5 modifications supplémentaires pour 4,99 €`}
-          </p>
-          {!isPremium && (
+        <div style={{ marginBottom: '2rem' }}>
+          {isPremium ? (
+            <p style={{ fontSize: '.78rem', color: 'var(--mute)', fontWeight: 300 }}>
+              Tu as utilisé tes {maxEdits} modifications.
+            </p>
+          ) : (
             <PremiumButton letterId={letter.id} token={letter.token} />
           )}
         </div>
       ) : (
-        <div className="adjust-wrap" style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '2rem' }}>
           <textarea
             className="adjust-input"
-            rows={2}
-            placeholder="Ajuste ta lettre… ex : Rends-la plus courte"
+            rows={3}
+            placeholder="Ajuste ta lettre… ex : Rends-la plus courte, ajoute une note d'humour…"
             value={adjustInstruction}
             onChange={e => setAdjustInstruction(e.target.value)}
+            style={{ width: '100%', marginBottom: '.8rem' }}
           />
-          <button
-            className="btn btn-dark"
-            disabled={!adjustInstruction.trim() || adjusting}
-            onClick={async () => {
-              const newCount = aiEditsUsed + 1
-              setAiEditsUsed(newCount)
-              updateAiEditsCount(letter.id, newCount).catch(() => {})
-              setAdjusting(true)
-              try {
-                const t = await adjustLetter(currentLetter, adjustInstruction, appellatif)
-                updateContent(t)
-                setAdjustInstruction('')
-              } catch { /* silent */ }
-              setAdjusting(false)
-            }}
-          >
-            Appliquer
-            {editsLeft > 0 && (
-              <span style={{ marginLeft: '.4rem', opacity: .55, fontSize: '.6rem' }}>
-                ({editsLeft} restant{editsLeft > 1 ? 's' : ''})
-              </span>
-            )}
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              className="btn btn-dark"
+              disabled={!adjustInstruction.trim() || adjusting}
+              onClick={async () => {
+                const newCount = aiEditsUsed + 1
+                setAiEditsUsed(newCount)
+                updateAiEditsCount(letter.id, newCount).catch(() => {})
+                setAdjusting(true)
+                try {
+                  const t = await adjustLetter(currentLetter, adjustInstruction, appellatif)
+                  updateContent(t)
+                  setAdjustInstruction('')
+                } catch { /* silent */ }
+                setAdjusting(false)
+              }}
+            >
+              {adjusting ? 'Réécriture…' : 'Appliquer'}
+              {!adjusting && editsLeft > 0 && (
+                <span style={{ marginLeft: '.4rem', opacity: .55, fontSize: '.6rem' }}>
+                  ({editsLeft} restant{editsLeft > 1 ? 's' : ''})
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       )}
 

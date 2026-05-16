@@ -591,7 +591,6 @@ export default function LetterFlow() {
                   {linkCopied ? 'Lien copié ✓' : 'Partager le lien'}
                 </button>
               )}
-              <button className="btn-ghost" onClick={restart}>Recommencer</button>
               <Link href="/dashboard" className="btn-ghost" style={{ textDecoration: 'none' }}>Mes lettres →</Link>
             </div>
 
