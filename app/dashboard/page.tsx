@@ -3,6 +3,8 @@ import { getLetters } from '@/app/actions/letters'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 const TONE_LABELS: Record<string, string> = {
   doux: 'Doux & apaisé', courageux: 'Courageux & direct', nostalgique: 'Nostalgique',
   reconnaissant: 'Reconnaissant', melancolique: 'Mélancolique', paix: 'En quête de paix',

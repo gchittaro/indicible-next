@@ -3,6 +3,8 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { redirect } from 'next/navigation'
 import LetterEditor from '@/components/LetterEditor'
 
+export const dynamic = 'force-dynamic'
+
 export default async function LetterEditPage({
   params,
   searchParams,
