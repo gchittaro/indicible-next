@@ -4,18 +4,76 @@ import { useState } from 'react'
 import { submitReaction } from '@/app/actions/letters'
 
 const REACTIONS = [
-  { type: 'touche',  emoji: '❤️', label: 'Touché' },
+  { type: 'touche',  emoji: '❤️', label: 'Touché·e' },
   { type: 'parler',  emoji: '🤝', label: "Je veux qu'on se parle" },
   { type: 'pardon',  emoji: '🙏', label: "J'accepte / je pardonne" },
   { type: 'silence', emoji: '🔇', label: 'Je préfère ne pas donner suite' },
 ]
 
-export default function ReactionForm({ letterId }: { letterId: string }) {
-  const [selected, setSelected] = useState<string | null>(null)
-  const [message,  setMessage]  = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [loading,  setLoading]  = useState(false)
+const REACTION_DISPLAY: Record<string, { emoji: string; label: string }> = {
+  touche:  { emoji: '❤️', label: 'Touché·e' },
+  parler:  { emoji: '🤝', label: "Veut qu'on se parle" },
+  pardon:  { emoji: '🙏', label: 'A accepté / pardonné' },
+  silence: { emoji: '🔇', label: 'A préféré ne pas donner suite' },
+}
 
+type ExistingReaction = { type: string; message: string | null }
+
+function ReactionDisplay({ reaction, note }: { reaction: ExistingReaction; note: string }) {
+  const display = REACTION_DISPLAY[reaction.type]
+  return (
+    <div style={{ marginTop: '3.5rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+      <p style={{ fontSize: '.6rem', letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--mute)', marginBottom: '1.2rem' }}>
+        Réaction
+      </p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', padding: '.75rem 1rem', border: '1px solid var(--border)', background: 'var(--paper)', marginBottom: reaction.message ? '1rem' : '1.5rem' }}>
+        <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>{display?.emoji ?? '💬'}</span>
+        <span style={{ fontSize: '.82rem', fontWeight: 300 }}>{display?.label ?? reaction.type}</span>
+      </div>
+      {reaction.message && (
+        <p style={{ fontSize: '.82rem', fontWeight: 300, color: 'var(--soft)', fontStyle: 'italic', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+          &ldquo;{reaction.message}&rdquo;
+        </p>
+      )}
+      <p style={{ fontSize: '.68rem', color: 'var(--mute)', letterSpacing: '.04em' }}>{note}</p>
+    </div>
+  )
+}
+
+export default function ReactionForm({
+  letterId,
+  isAuthor,
+  existingReaction,
+}: {
+  letterId: string
+  isAuthor: boolean
+  existingReaction: ExistingReaction | null
+}) {
+  const [selected,  setSelected]  = useState<string | null>(null)
+  const [message,   setMessage]   = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [loading,   setLoading]   = useState(false)
+
+  // Author view
+  if (isAuthor) {
+    if (existingReaction) {
+      return <ReactionDisplay reaction={existingReaction} note="Vous êtes l'auteur de cette lettre." />
+    }
+    return (
+      <div style={{ marginTop: '3.5rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+        <p style={{ fontSize: '.68rem', color: 'var(--mute)', letterSpacing: '.04em' }}>
+          Vous êtes l&apos;auteur de cette lettre — en attente d&apos;une réaction.
+        </p>
+      </div>
+    )
+  }
+
+  // Recipient already reacted
+  if (existingReaction) {
+    return <ReactionDisplay reaction={existingReaction} note="Vous avez déjà répondu à cette lettre." />
+  }
+
+  // Recipient — normal form
   async function handleSubmit() {
     if (!selected || loading) return
     setLoading(true)

@@ -1,4 +1,6 @@
 import { getLetterByToken, markLetterRead } from '@/app/actions/letters'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import ReactionForm from '@/components/ReactionForm'
 import CopyLinkButton from '@/components/CopyLinkButton'
@@ -24,8 +26,24 @@ export default async function LettrePage({ params }: { params: { token: string }
   const letter = await getLetterByToken(params.token)
   if (!letter) notFound()
 
-  // Mark as read when recipient opens the page (won't overwrite 'répondue')
-  if (letter.status !== 'répondue') {
+  // Detect author
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAuthor = !!user && user.id === letter.user_id
+
+  // Fetch existing reaction (most recent)
+  const service = createServiceClient()
+  const { data: reactionRow } = await service
+    .from('reactions')
+    .select('type, message')
+    .eq('letter_id', letter.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const existingReaction = reactionRow as { type: string; message: string | null } | null
+
+  // Only mark as read when the recipient (not the author) opens the page
+  if (!isAuthor && letter.status !== 'répondue') {
     markLetterRead(letter.id).catch(() => {})
   }
 
@@ -51,6 +69,7 @@ export default async function LettrePage({ params }: { params: { token: string }
             ))}
           </div>
         </div>
+
         <div className="lpaper show" style={{ marginTop: '2rem' }}>
           {paragraphs.map((para: string, i: number) => (
             <p key={i} className="para-text" style={{ marginBottom: i < paragraphs.length - 1 ? '1.4em' : 0 }}>
@@ -63,6 +82,7 @@ export default async function LettrePage({ params }: { params: { token: string }
             </p>
           )}
         </div>
+
         {/* Photos */}
         {photos.length > 0 && (
           <div className="media-grid" style={{ marginTop: '2rem' }}>
@@ -100,13 +120,21 @@ export default async function LettrePage({ params }: { params: { token: string }
           </div>
         ))}
 
-        <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <CopyLinkButton url={url} />
-          {letter.status !== 'premium' && (
-            <PremiumButton letterId={letter.id} token={params.token} />
-          )}
-        </div>
-        <ReactionForm letterId={letter.id} />
+        {/* Copy + premium buttons — only shown to non-authors */}
+        {!isAuthor && (
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <CopyLinkButton url={url} />
+            {letter.status !== 'premium' && (
+              <PremiumButton letterId={letter.id} token={params.token} />
+            )}
+          </div>
+        )}
+
+        <ReactionForm
+          letterId={letter.id}
+          isAuthor={isAuthor}
+          existingReaction={existingReaction}
+        />
       </div>
     </div>
   )

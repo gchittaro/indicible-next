@@ -98,6 +98,7 @@ export async function getLetterByToken(token: string) {
     .single()
   return data as {
     id: string
+    user_id: string
     token: string
     recipient_name: string | null
     recipient_type: string
