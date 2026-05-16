@@ -68,6 +68,14 @@ export default function RegisterPage() {
               className="w-full bg-transparent border-b border-border pb-2 text-[0.9rem] font-light text-ink placeholder:text-mute/60 focus:outline-none focus:border-ink transition-colors duration-200"
               placeholder="••••••••" />
           </div>
+          <div>
+            <label className="block text-[0.6rem] tracking-[0.18em] uppercase text-mute mb-2">
+              Code de parrainage <span style={{ opacity: .5 }}>(optionnel)</span>
+            </label>
+            <input type="text" name="referral_code" autoComplete="off"
+              className="w-full bg-transparent border-b border-border pb-2 text-[0.9rem] font-light text-ink placeholder:text-mute/60 focus:outline-none focus:border-ink transition-colors duration-200"
+              placeholder="INDIC-XXXXXXXX" />
+          </div>
           {state?.error && <p className="text-[0.72rem] text-[#8B3A3A] tracking-[0.02em]">{state.error}</p>}
           <div className="pt-1"><SubmitButton /></div>
         </form>

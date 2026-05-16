@@ -44,6 +44,27 @@ create index on public.letters(token);
 create index on public.reactions(letter_id);
 create index on public.notifications(letter_id);
 
+create table public.referral_codes (
+  id                       uuid        primary key default gen_random_uuid(),
+  code                     text        not null unique,
+  user_id                  uuid        not null references auth.users(id) on delete cascade,
+  stripe_promotion_code_id text        not null,
+  uses_count               integer     not null default 0,
+  created_at               timestamptz not null default now()
+);
+
+create table public.credits (
+  id         uuid        primary key default gen_random_uuid(),
+  user_id    uuid        not null references auth.users(id) on delete cascade,
+  amount     integer     not null default 1,
+  source     text        not null,
+  created_at timestamptz not null default now()
+);
+
+create index on public.referral_codes(user_id);
+create index on public.referral_codes(code);
+create index on public.credits(user_id);
+
 alter table public.letters       enable row level security;
 alter table public.reactions     enable row level security;
 alter table public.notifications enable row level security;

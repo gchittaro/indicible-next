@@ -2,6 +2,7 @@ import { getLetterByToken, markLetterRead } from '@/app/actions/letters'
 import { notFound } from 'next/navigation'
 import ReactionForm from '@/components/ReactionForm'
 import CopyLinkButton from '@/components/CopyLinkButton'
+import PremiumButton from '@/components/PremiumButton'
 
 const TONE_LABELS: Record<string, string> = {
   doux: 'Doux & apaisé', courageux: 'Courageux & direct', nostalgique: 'Nostalgique',
@@ -59,8 +60,11 @@ export default async function LettrePage({ params }: { params: { token: string }
             </p>
           )}
         </div>
-        <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <CopyLinkButton url={url} />
+          {letter.status !== 'premium' && (
+            <PremiumButton letterId={letter.id} token={params.token} />
+          )}
         </div>
         <ReactionForm letterId={letter.id} />
       </div>

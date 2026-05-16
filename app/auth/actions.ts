@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 
@@ -28,15 +29,16 @@ export async function login(prevState: AuthState, formData: FormData): Promise<A
 }
 
 export async function register(prevState: AuthState, formData: FormData): Promise<AuthState> {
-  const password = formData.get('password') as string
-  const confirm  = formData.get('confirm') as string
+  const password     = formData.get('password') as string
+  const confirm      = formData.get('confirm') as string
+  const referralCode = ((formData.get('referral_code') as string) || '').trim().toUpperCase()
 
   if (password !== confirm) return { error: 'Les mots de passe ne correspondent pas.' }
   if (password.length < 6)  return { error: 'Le mot de passe doit faire au moins 6 caractères.' }
 
   const supabase = createClient()
+  const origin   = await getOrigin()
 
-  const origin = await getOrigin()
   const { data, error } = await supabase.auth.signUp({
     email: formData.get('email') as string,
     password,
@@ -44,6 +46,28 @@ export async function register(prevState: AuthState, formData: FormData): Promis
   })
 
   if (error) return { error: frenchError(error.message) }
+
+  if (referralCode && data.user?.id) {
+    const service = createServiceClient()
+    const { data: ref } = await service
+      .from('referral_codes')
+      .select('id')
+      .eq('code', referralCode)
+      .eq('uses_count', 0)
+      .single()
+
+    if (ref) {
+      await Promise.all([
+        service.from('credits').insert({
+          user_id: data.user.id,
+          amount:  1,
+          source:  `referral:${referralCode}`,
+        }),
+        service.from('referral_codes').update({ uses_count: 1 }).eq('id', ref.id),
+      ])
+    }
+  }
+
   redirect(data.session ? '/' : '/check-email')
 }
 
