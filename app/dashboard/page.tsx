@@ -126,9 +126,15 @@ export default async function DashboardPage() {
                     )}
                   </div>
 
-                  <Link href={`/dashboard/letters/${letter.id}`} style={{ fontSize: '.65rem', letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink)', textDecoration: 'none', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border)', paddingBottom: '1px', flexShrink: 0, marginTop: '.25rem' }}>
-                    Éditer →
-                  </Link>
+                  {status === 'répondue' ? (
+                    <Link href={`/lettre/${letter.token}`} style={{ fontSize: '.65rem', letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink)', textDecoration: 'none', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border)', paddingBottom: '1px', flexShrink: 0, marginTop: '.25rem' }}>
+                      Voir →
+                    </Link>
+                  ) : (
+                    <Link href={`/dashboard/letters/${letter.id}`} style={{ fontSize: '.65rem', letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink)', textDecoration: 'none', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border)', paddingBottom: '1px', flexShrink: 0, marginTop: '.25rem' }}>
+                      Éditer →
+                    </Link>
+                  )}
                 </div>
               )
             })}

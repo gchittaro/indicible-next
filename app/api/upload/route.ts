@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const path = `${letterId}/${Date.now()}.${ext}`
 
   const { data, error } = await service.storage
-    .from('letter-media')
+    .from('letters')
     .upload(path, file, { contentType: file.type, upsert: false })
 
   if (error) {
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   const { data: { publicUrl } } = service.storage
-    .from('letter-media')
+    .from('letters')
     .getPublicUrl(data.path)
 
   return Response.json({ url: publicUrl })
