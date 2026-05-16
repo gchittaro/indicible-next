@@ -539,8 +539,8 @@ export default function LetterFlow() {
                 <p style={{ marginBottom: '1rem' }}>
                   Tu as utilisé tes {FREE_AI_EDITS} ajustements gratuits — passe en version premium pour continuer à affiner ta lettre.
                 </p>
-                {savedLetterId && savedToken && (
-                  <PremiumButton letterId={savedLetterId} token={savedToken} />
+                {savedToken && (
+                  <PremiumButton letterId={savedLetterId ?? ''} token={savedToken} />
                 )}
               </div>
             ) : (

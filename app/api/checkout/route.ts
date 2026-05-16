@@ -1,20 +1,34 @@
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { headers } from 'next/headers'
 
 export async function POST(request: Request) {
-  const { letterId, token } = await request.json()
+  const { letterId: rawLetterId, token } = await request.json()
 
-  if (!letterId || !token) {
-    return Response.json({ error: 'Missing letterId or token' }, { status: 400 })
+  if (!token) {
+    return Response.json({ error: 'Missing token' }, { status: 400 })
+  }
+
+  const service = createServiceClient()
+
+  // Resolve letterId from token if not provided
+  let letterId = rawLetterId
+  if (!letterId) {
+    const { data } = await service.from('letters').select('id').eq('token', token).single()
+    letterId = data?.id
+  }
+
+  if (!letterId) {
+    return Response.json({ error: 'Letter not found' }, { status: 404 })
   }
 
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const h    = headers()
-  const host = h.get('host') || 'localhost:3000'
-  const proto = host.startsWith('localhost') ? 'http' : 'https'
+  const h      = headers()
+  const host   = h.get('host') || 'localhost:3000'
+  const proto  = host.startsWith('localhost') ? 'http' : 'https'
   const origin = `${proto}://${host}`
 
   try {
