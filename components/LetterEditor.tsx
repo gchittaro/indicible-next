@@ -68,7 +68,7 @@ interface LetterData {
   style: string
   content: string
   status: string
-  ai_edits_count: number
+  ai_edits_count?: number | null
 }
 
 export default function LetterEditor({
@@ -87,7 +87,7 @@ export default function LetterEditor({
 
   const [paragraphs, setParagraphs]             = useState<string[]>(initParagraphs)
   const [currentLetter, setCurrentLetter]       = useState(letter.content)
-  const [aiEditsUsed, setAiEditsUsed]           = useState(letter.ai_edits_count)
+  const [aiEditsUsed, setAiEditsUsed]           = useState(letter.ai_edits_count ?? 0)
   const [adjustInstruction, setAdjustInstruction] = useState('')
   const [adjusting, setAdjusting]               = useState(false)
   const [regenIndex, setRegenIndex]             = useState<number | null>(null)

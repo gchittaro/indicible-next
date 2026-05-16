@@ -15,12 +15,13 @@ export default async function LetterEditPage({
   if (!user) redirect('/login')
 
   const service = createServiceClient()
-  const { data: letter } = await service
+  const { data: letter, error: letterError } = await service
     .from('letters')
-    .select('id, token, user_id, recipient_name, recipient_type, tone, style, moment, intention, content, status, ai_edits_count, created_at')
+    .select('*')
     .eq('id', params.id)
     .single()
 
+  if (letterError) console.error('[LetterEditPage] fetch error:', letterError)
   if (!letter || letter.user_id !== user.id) redirect('/dashboard')
 
   return (

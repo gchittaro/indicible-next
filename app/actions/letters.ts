@@ -143,7 +143,8 @@ export async function updateAiEditsCount(letterId: string, count: number) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
-  await supabase
+  const service = createServiceClient()
+  await service
     .from('letters')
     .update({ ai_edits_count: count })
     .eq('id', letterId)
