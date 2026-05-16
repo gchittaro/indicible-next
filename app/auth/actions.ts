@@ -80,7 +80,7 @@ export async function sendPasswordReset(prevState: ResetState, formData: FormDat
   console.log('[sendPasswordReset] email:', email, 'redirectTo:', redirectTo)
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
   console.log('[sendPasswordReset] result — data:', JSON.stringify(data), '| error:', error ? JSON.stringify(error) : 'null')
-  if (error) return { error: frenchError(error.message) }
+  if (error) return { error: error.message }
   return { sent: true }
 }
 
