@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { updateAiEditsCount, type MediaItem } from '@/app/actions/letters'
+import { updateAiEditsCount, saveLetterContent, type MediaItem } from '@/app/actions/letters'
+import { useRouter } from 'next/navigation'
 import MediaUploader from './MediaUploader'
 import PremiumButton from './PremiumButton'
 
@@ -94,9 +95,11 @@ export default function LetterEditor({
   const [adjustInstruction, setAdjustInstruction] = useState('')
   const [adjusting, setAdjusting]               = useState(false)
   const [regenIndex, setRegenIndex]             = useState<number | null>(null)
-  const [copied, setCopied]                     = useState(false)
-  const [linkCopied, setLinkCopied]             = useState(false)
+  const [showShareModal, setShowShareModal]     = useState(false)
+  const [modalLinkCopied, setModalLinkCopied]   = useState(false)
+  const [saving, setSaving]                     = useState(false)
   const [showMediaGate, setShowMediaGate]       = useState(false)
+  const router                                  = useRouter()
 
   function updateContent(text: string) {
     setCurrentLetter(text)
@@ -249,25 +252,87 @@ export default function LetterEditor({
         </div>
       )}
 
-      {/* Actions */}
-      <div className="lactions">
-        <button
-          className="btn btn-dark"
-          onClick={() => { navigator.clipboard.writeText(currentLetter); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-        >
-          {copied ? 'Copié ✓' : 'Copier le texte'}
-        </button>
+      {/* ── PARTAGER ─────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '2.5rem', marginBottom: '1.5rem' }}>
+        <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+        <p style={{ fontSize: '.58rem', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--mute)', whiteSpace: 'nowrap' }}>
+          Partager ma lettre
+        </p>
+        <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+      </div>
+
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <button
           className="btn btn-border"
-          onClick={() => {
-            navigator.clipboard.writeText(window.location.origin + '/lettre/' + letter.token)
-            setLinkCopied(true)
-            setTimeout(() => setLinkCopied(false), 2000)
+          disabled={saving}
+          onClick={async () => {
+            setSaving(true)
+            try {
+              await saveLetterContent(letter.id, currentLetter)
+            } catch { /* silent */ }
+            setSaving(false)
+            router.push('/dashboard')
           }}
         >
-          {linkCopied ? 'Lien copié ✓' : 'Partager le lien'}
+          {saving ? 'Enregistrement…' : 'Enregistrer en brouillon'}
+        </button>
+        <button className="btn btn-dark" onClick={() => {
+          const url = window.location.origin + '/lettre/' + letter.token
+          if (typeof navigator !== 'undefined' && navigator.share) {
+            navigator.share({ title: 'Une lettre pour toi', text: "J'ai quelque chose à te dire.", url })
+          } else {
+            setShowShareModal(true)
+          }
+        }}>
+          Partager
         </button>
       </div>
+
+      {/* ── Modal partage (desktop / fallback) ── */}
+      {showShareModal && (
+        <>
+          <div
+            onClick={() => setShowShareModal(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(27,23,20,.5)', zIndex: 200 }}
+          />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'min(90vw, 400px)',
+            background: 'var(--paper)', border: '1px solid var(--border)',
+            padding: '2rem', zIndex: 201, animation: 'up .22s ease both',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.8rem' }}>
+              <h2 style={{ fontFamily: 'var(--font-cormorant), Cormorant Garamond, serif', fontWeight: 300, fontSize: '1.35rem' }}>
+                Partager ta lettre
+              </h2>
+              <button onClick={() => setShowShareModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', color: 'var(--mute)', cursor: 'pointer', lineHeight: 1, padding: '0 .2rem' }}>
+                ×
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+              <button
+                className="btn btn-border"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + '/lettre/' + letter.token)
+                  setModalLinkCopied(true)
+                  setTimeout(() => setModalLinkCopied(false), 2500)
+                }}
+              >
+                {modalLinkCopied ? 'Copié ✓' : 'Copier le lien'}
+              </button>
+              <a
+                className="btn btn-dark"
+                style={{ textDecoration: 'none', justifyContent: 'center' }}
+                href={`mailto:?subject=Une lettre pour toi&body=${encodeURIComponent("J'ai quelque chose à te dire. Tu peux lire ma lettre ici : " + window.location.origin + '/lettre/' + letter.token)}`}
+              >
+                Envoyer par email
+              </a>
+            </div>
+          </div>
+        </>
+      )}
 
     </main>
   )

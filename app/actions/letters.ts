@@ -114,6 +114,19 @@ export async function getLetterByToken(token: string) {
   } | null
 }
 
+export async function saveLetterContent(letterId: string, content: string) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  const service = createServiceClient()
+  const { error } = await service
+    .from('letters')
+    .update({ content })
+    .eq('id', letterId)
+    .eq('user_id', user.id)
+  if (error) throw new Error(error.message)
+}
+
 export async function updateLetterMedia(letterId: string, items: MediaItem[]) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
