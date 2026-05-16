@@ -4,6 +4,13 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { randomBytes } from 'crypto'
 
+export type MediaItem = {
+  id: string
+  type: 'image' | 'video'
+  url: string
+  caption: string
+}
+
 export interface LetterInsert {
   recipient_name: string | null
   recipient_type: string
@@ -102,7 +109,20 @@ export async function getLetterByToken(token: string) {
     show_mention: boolean
     status: string
     created_at: string
+    media_items?: MediaItem[] | null
   } | null
+}
+
+export async function updateLetterMedia(letterId: string, items: MediaItem[]) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  const service = createServiceClient()
+  await service
+    .from('letters')
+    .update({ media_items: items })
+    .eq('id', letterId)
+    .eq('user_id', user.id)
 }
 
 export async function submitReaction(letterId: string, type: string, message: string | null) {

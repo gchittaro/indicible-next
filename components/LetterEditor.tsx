@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { updateAiEditsCount } from '@/app/actions/letters'
+import { updateAiEditsCount, type MediaItem } from '@/app/actions/letters'
+import MediaUploader from './MediaUploader'
 
 const FREE_AI_EDITS    = 2
 const PREMIUM_AI_EDITS = 5
@@ -69,6 +70,7 @@ interface LetterData {
   content: string
   status: string
   ai_edits_count?: number | null
+  media_items?: MediaItem[] | null
 }
 
 export default function LetterEditor({
@@ -228,6 +230,14 @@ export default function LetterEditor({
           {linkCopied ? 'Lien copié ✓' : 'Partager le lien'}
         </button>
       </div>
+
+      {/* Media — photos & videos attached to the letter */}
+      {isPremium && (
+        <MediaUploader
+          letterId={letter.id}
+          initialItems={letter.media_items ?? []}
+        />
+      )}
 
     </main>
   )

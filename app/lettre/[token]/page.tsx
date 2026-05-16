@@ -32,6 +32,9 @@ export default async function LettrePage({ params }: { params: { token: string }
   const display    = getDisplay(letter.recipient_type, letter.recipient_name)
   const paragraphs = letter.content.split('\n\n').filter((p: string) => p.trim())
   const url        = `/lettre/${params.token}`
+  const mediaItems = letter.media_items ?? []
+  const photos     = mediaItems.filter((m: { type: string }) => m.type === 'image')
+  const videos     = mediaItems.filter((m: { type: string }) => m.type === 'video')
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -60,6 +63,43 @@ export default async function LettrePage({ params }: { params: { token: string }
             </p>
           )}
         </div>
+        {/* Photos */}
+        {photos.length > 0 && (
+          <div className="media-grid" style={{ marginTop: '2rem' }}>
+            {photos.map((item: { id: string; url: string; caption: string }) => (
+              <div key={item.id} className="media-photo-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.url} alt={item.caption || ''} className="media-photo-img" />
+                {item.caption && (
+                  <p style={{ fontSize: '.68rem', color: 'var(--mute)', fontStyle: 'italic', marginTop: '.4rem', fontWeight: 300 }}>
+                    {item.caption}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Videos */}
+        {videos.map((item: { id: string; url: string; caption: string }) => (
+          <div key={item.id} className="media-video-wrap" style={{ marginTop: '2rem' }}>
+            <div className="media-video-inner">
+              <iframe
+                src={item.url}
+                title="video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="media-video-iframe"
+              />
+            </div>
+            {item.caption && (
+              <p style={{ fontSize: '.68rem', color: 'var(--mute)', fontStyle: 'italic', marginTop: '.5rem', fontWeight: 300 }}>
+                {item.caption}
+              </p>
+            )}
+          </div>
+        ))}
+
         <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <CopyLinkButton url={url} />
           {letter.status !== 'premium' && (
