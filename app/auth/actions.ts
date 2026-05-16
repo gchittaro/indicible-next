@@ -14,6 +14,7 @@ function frenchError(message: string): string {
   if (message.includes('User already registered')) return 'Un compte existe déjà avec cet email.'
   if (message.includes('Password should be at least')) return 'Le mot de passe doit faire au moins 6 caractères.'
   if (message.includes('Unable to validate email')) return 'Adresse email invalide.'
+  if (message.toLowerCase().includes('rate limit')) return 'Trop de tentatives — réessaie dans une heure.'
   return 'Une erreur est survenue. Réessaie.'
 }
 
@@ -80,7 +81,7 @@ export async function sendPasswordReset(prevState: ResetState, formData: FormDat
   console.log('[sendPasswordReset] email:', email, 'redirectTo:', redirectTo)
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
   console.log('[sendPasswordReset] result — data:', JSON.stringify(data), '| error:', error ? JSON.stringify(error) : 'null')
-  if (error) return { error: error.message }
+  if (error) return { error: frenchError(error.message) }
   return { sent: true }
 }
 
