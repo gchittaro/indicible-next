@@ -4,7 +4,6 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import ReactionForm from '@/components/ReactionForm'
 import CopyLinkButton from '@/components/CopyLinkButton'
-import PremiumButton from '@/components/PremiumButton'
 
 const TONE_LABELS: Record<string, string> = {
   doux: 'Doux & apaisé', courageux: 'Courageux & direct', nostalgique: 'Nostalgique',
@@ -120,13 +119,10 @@ export default async function LettrePage({ params }: { params: { token: string }
           </div>
         ))}
 
-        {/* Copy + premium buttons — only shown to non-authors */}
+        {/* Copy link — only shown to non-authors */}
         {!isAuthor && (
-          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ marginTop: '1.5rem' }}>
             <CopyLinkButton url={url} />
-            {letter.status !== 'premium' && (
-              <PremiumButton letterId={letter.id} token={params.token} />
-            )}
           </div>
         )}
 

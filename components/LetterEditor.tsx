@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { updateAiEditsCount, type MediaItem } from '@/app/actions/letters'
 import MediaUploader from './MediaUploader'
+import PremiumButton from './PremiumButton'
 
 const FREE_AI_EDITS    = 2
 const PREMIUM_AI_EDITS = 5
@@ -115,7 +116,7 @@ export default function LetterEditor({
           border: '1px solid #8B6B3D', color: '#8B6B3D',
           fontSize: '.72rem', letterSpacing: '.06em',
         }}>
-          ✦ Version premium activée
+          ✦ Modifications débloquées ✓
         </div>
       )}
 
@@ -128,7 +129,7 @@ export default function LetterEditor({
           Pour {display}
         </h1>
         <p style={{ fontSize: '.7rem', color: 'var(--mute)', letterSpacing: '.06em' }}>
-          {isPremium ? `${editsLeft} ajustement${editsLeft !== 1 ? 's' : ''} disponible${editsLeft !== 1 ? 's' : ''}` : `${editsLeft} ajustement${editsLeft !== 1 ? 's' : ''} gratuit${editsLeft !== 1 ? 's' : ''} restant${editsLeft !== 1 ? 's' : ''}`}
+          {`${editsLeft} modification${editsLeft !== 1 ? 's' : ''} restante${editsLeft !== 1 ? 's' : ''}`}
         </p>
       </div>
 
@@ -170,11 +171,14 @@ export default function LetterEditor({
       {/* Adjust area */}
       {editsBlocked ? (
         <div className="premium-gate" style={{ marginBottom: '2rem' }}>
-          <p style={{ fontSize: '.82rem', fontWeight: 300, lineHeight: 1.6 }}>
+          <p style={{ fontSize: '.82rem', fontWeight: 300, lineHeight: 1.6, marginBottom: isPremium ? 0 : '1rem' }}>
             {isPremium
-              ? `Tu as utilisé tes ${maxEdits} ajustements premium.`
-              : `Tu as utilisé tes ${FREE_AI_EDITS} ajustements gratuits — passe en version premium pour continuer à affiner ta lettre.`}
+              ? `Tu as utilisé tes ${maxEdits} modifications.`
+              : `Tu as utilisé tes ${FREE_AI_EDITS} modifications gratuites — débloquer 5 modifications supplémentaires pour 4,99 €`}
           </p>
+          {!isPremium && (
+            <PremiumButton letterId={letter.id} token={letter.token} />
+          )}
         </div>
       ) : (
         <div className="adjust-wrap" style={{ marginBottom: '2rem' }}>

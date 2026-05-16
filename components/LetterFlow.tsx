@@ -540,7 +540,7 @@ export default function LetterFlow() {
             {aiEditsUsed >= FREE_AI_EDITS ? (
               <div className="premium-gate">
                 <p style={{ marginBottom: '1rem' }}>
-                  Tu as utilisé tes {FREE_AI_EDITS} ajustements gratuits — passe en version premium pour continuer à affiner ta lettre.
+                  Tu as utilisé tes {FREE_AI_EDITS} modifications gratuites — débloquer 5 modifications supplémentaires pour 4,99 €
                 </p>
                 {savedToken && (
                   <PremiumButton letterId={savedLetterId ?? ''} token={savedToken} />
@@ -595,7 +595,7 @@ export default function LetterFlow() {
               <Link href="/dashboard" className="btn-ghost" style={{ textDecoration: 'none' }}>Mes lettres →</Link>
             </div>
 
-            <p className="premium">✦ Version premium — ajoute des photos, une vidéo, envoie par email.</p>
+            <p className="premium">✦ Débloquer plus de modifications — ajoute des photos et vidéos à ta lettre.</p>
           </div>
         )}
 

@@ -31,7 +31,7 @@ export default function PremiumButton({ letterId, token }: { letterId: string; t
   return (
     <div>
       <button className="btn btn-dark" onClick={handleClick} disabled={loading}>
-        {loading ? 'Redirection…' : 'Passer en premium — 4,99 €'}
+        {loading ? 'Redirection...' : 'Débloquer 5 modifications — 4,99 €'}
       </button>
       {error && (
         <p style={{ marginTop: '.5rem', fontSize: '.72rem', color: '#8B3A3A' }}>{error}</p>
