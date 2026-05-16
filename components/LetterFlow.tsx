@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import TypingText from './TypingText'
 import { saveLetter, updateAiEditsCount, markLetterShared } from '@/app/actions/letters'
+import PremiumButton from './PremiumButton'
 
 const FREE_AI_EDITS = 2
 
@@ -534,9 +535,14 @@ export default function LetterFlow() {
             </div>
 
             {aiEditsUsed >= FREE_AI_EDITS ? (
-              <p className="premium-gate">
-                Tu as utilisé tes {FREE_AI_EDITS} ajustements gratuits — passe en version premium pour continuer.
-              </p>
+              <div className="premium-gate">
+                <p style={{ marginBottom: '1rem' }}>
+                  Tu as utilisé tes {FREE_AI_EDITS} ajustements gratuits — passe en version premium pour continuer à affiner ta lettre.
+                </p>
+                {savedLetterId && savedToken && (
+                  <PremiumButton letterId={savedLetterId} token={savedToken} />
+                )}
+              </div>
             ) : (
               <div className="adjust-wrap">
                 <textarea className="adjust-input" rows={2}
