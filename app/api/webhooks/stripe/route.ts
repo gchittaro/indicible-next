@@ -43,7 +43,7 @@ export async function POST(request: Request) {
           coupon:           coupon.id,
           code,
           max_redemptions:  1,
-        })
+        } as any)
 
         await service.from('referral_codes').insert({
           code:                     promoCode.code,
