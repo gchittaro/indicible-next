@@ -19,7 +19,7 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Indicible',
+  title: 'Dicible',
   description: "Pour dire ce qu'on n'a jamais dit.",
 }
 

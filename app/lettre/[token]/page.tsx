@@ -57,7 +57,7 @@ export default async function LettrePage({ params }: { params: { token: string }
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <div style={{ maxWidth: '600px', margin: '0 auto', padding: '5rem 1.5rem 6rem' }}>
         <p style={{ fontFamily: 'var(--font-cormorant), Cormorant Garamond, serif', fontWeight: 300, fontSize: '.95rem', letterSpacing: '.12em', color: 'var(--ink)', opacity: .4, marginBottom: '3.5rem' }}>
-          indicible
+          Dicible
         </p>
         <div className="lmeta">
           <p className="eyebrow">Une lettre pour toi</p>
@@ -77,7 +77,7 @@ export default async function LettrePage({ params }: { params: { token: string }
           ))}
           {letter.show_mention && (
             <p style={{ marginTop: '2rem', fontSize: '.62rem', color: 'var(--mute)', letterSpacing: '.08em' }}>
-              ✦ Écrit avec Indicible
+              ✦ Écrit avec Dicible
             </p>
           )}
         </div>

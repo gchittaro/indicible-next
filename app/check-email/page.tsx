@@ -4,7 +4,7 @@ export default function CheckEmailPage() {
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center px-6">
       <div className="w-full max-w-[360px] text-center">
-        <p className="font-serif font-light text-[0.95rem] tracking-[0.12em] text-ink/40 mb-10">indicible</p>
+        <p className="font-serif font-light text-[0.95rem] tracking-[0.12em] text-ink/40 mb-10">Dicible</p>
         <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', fontSize: '1.3rem' }}>
           ✉
         </div>

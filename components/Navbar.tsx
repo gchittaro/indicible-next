@@ -16,7 +16,7 @@ export default async function Navbar() {
 
   return (
     <header className="navbar">
-      <Link href="/" className="navbar-logo">indicible</Link>
+      <Link href="/" className="navbar-logo">Dicible</Link>
       <nav className="navbar-right">
         {user ? (
           <>
